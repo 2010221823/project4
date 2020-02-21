@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.accp.project4.dao.employeeMapper">
+	<resultMap id="BaseResultMap"
+		type="com.accp.project4.pojo.employee">
+		<id column="employee_id" property="employeeId" jdbcType="INTEGER" />
+		<result column="employee_name" property="employeeName"
+			jdbcType="VARCHAR" />
+		<result column="password" property="password"
+			jdbcType="VARCHAR" />
+		<result column="department_id" property="departmentId"
+			jdbcType="INTEGER" />
+		<result column="position_id" property="positionId"
+			jdbcType="INTEGER" />
+		<result column="status_id" property="statusId"
+			jdbcType="VARCHAR" />
+	</resultMap>
+	<resultMap id="BaseResultMap1"
+		type="com.accp.project4.vo.EmployeeVo">
+		<id column="employee_id" property="employeeId" jdbcType="INTEGER" />
+		<result column="employee_name" property="employeeName"
+			jdbcType="VARCHAR" />
+		<result column="password" property="password"
+			jdbcType="VARCHAR" />
+		<result column="department_id" property="departmentId"
+			jdbcType="INTEGER" />
+		<result column="position_id" property="positionId"
+			jdbcType="INTEGER" />
+		<result column="position_name" property="positionName"
+			jdbcType="VARCHAR" />
+		<result column="department_name" property="departmentName"
+			jdbcType="VARCHAR" />
+		<result column="status_id" property="statusId"
+			jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		employee_id, employee_name, password, department_id,
+		position_id, status_id
+	</sql>
+	<!--员工登录 -->
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap1">
+		select employee_id,
+		employee_name, password, e.department_id,
+		e.position_id,
+		status_id,department_name,position_name
+		FROM employee e LEFT JOIN
+		department d ON e.department_id=d.department_id
+		INNER JOIN position p
+		ON e.position_id=p.position_id
+		where employee_id =
+		#{employeeId} and
+		password=#{pwd}
+	</select>
+	<!--查询上级 -->
+	<select id="queryByPositionId" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from employee where position_id=#{positionId} and
+		department_id=#{departmentId}
+	</select>
+	<delete id="deleteByPrimaryKey"
+		parameterType="java.lang.Integer">
+		delete from employee
+		where employee_id =
+		#{employeeId,jdbcType=INTEGER}
+	</delete>
+	<insert id="insert"
+		parameterType="com.accp.project4.pojo.employee">
+		insert into employee (employee_id, employee_name,
+		password,
+		department_id, position_id, status_id
+		)
+		values
+		(#{employeeId,jdbcType=INTEGER}, #{employeeName,jdbcType=VARCHAR},
+		#{password,jdbcType=VARCHAR},
+		#{departmentId,jdbcType=INTEGER},
+		#{positionId,jdbcType=INTEGER}, #{statusId,jdbcType=VARCHAR}
+		)
+	</insert>
+	<insert id="insertSelective"
+		parameterType="com.accp.project4.pojo.employee">
+		insert into employee
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="employeeId != null">
+				employee_id,
+			</if>
+			<if test="employeeName != null">
+				employee_name,
+			</if>
+			<if test="password != null">
+				password,
+			</if>
+			<if test="departmentId != null">
+				department_id,
+			</if>
+			<if test="positionId != null">
+				position_id,
+			</if>
+			<if test="statusId != null">
+				status_id,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="employeeId != null">
+				#{employeeId,jdbcType=INTEGER},
+			</if>
+			<if test="employeeName != null">
+				#{employeeName,jdbcType=VARCHAR},
+			</if>
+			<if test="password != null">
+				#{password,jdbcType=VARCHAR},
+			</if>
+			<if test="departmentId != null">
+				#{departmentId,jdbcType=INTEGER},
+			</if>
+			<if test="positionId != null">
+				#{positionId,jdbcType=INTEGER},
+			</if>
+			<if test="statusId != null">
+				#{statusId,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective"
+		parameterType="com.accp.project4.pojo.employee">
+		update employee
+		<set>
+			<if test="employeeName != null">
+				employee_name = #{employeeName,jdbcType=VARCHAR},
+			</if>
+			<if test="password != null">
+				password = #{password,jdbcType=VARCHAR},
+			</if>
+			<if test="departmentId != null">
+				department_id = #{departmentId,jdbcType=INTEGER},
+			</if>
+			<if test="positionId != null">
+				position_id = #{positionId,jdbcType=INTEGER},
+			</if>
+			<if test="statusId != null">
+				status_id = #{statusId,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where employee_id = #{employeeId,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey"
+		parameterType="com.accp.project4.pojo.employee">
+		update employee
+		set employee_name =
+		#{employeeName,jdbcType=VARCHAR},
+		password =
+		#{password,jdbcType=VARCHAR},
+		department_id =
+		#{departmentId,jdbcType=INTEGER},
+		position_id =
+		#{positionId,jdbcType=INTEGER},
+		status_id =
+		#{statusId,jdbcType=VARCHAR}
+		where employee_id =
+		#{employeeId,jdbcType=INTEGER}
+	</update>
+</mapper>

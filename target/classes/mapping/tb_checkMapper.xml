@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.accp.project4.dao.tb_checkMapper">
+	<resultMap id="BaseResultMap"
+		type="com.accp.project4.pojo.tb_check">
+		<id column="check_id" property="checkId" jdbcType="INTEGER" />
+		<result column="biz_id" property="bizId" jdbcType="INTEGER" />
+		<result column="type_id" property="typeId" jdbcType="INTEGER" />
+		<result column="check_time" property="checkTime"
+			jdbcType="TIMESTAMP" />
+		<result column="check_man" property="checkMan"
+			jdbcType="INTEGER" />
+		<result column="check_result" property="checkResult"
+			jdbcType="INTEGER" />
+		<result column="check_comment" property="checkComment"
+			jdbcType="VARCHAR" />
+		<result column="employee_name" property="employeeName"
+			jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		check_id, biz_id, type_id, check_time, check_man,
+		check_result, check_comment
+	</sql>
+	<!-- 新增请假审查 -->
+	<insert id="insertSelective"
+		parameterType="com.accp.project4.pojo.tb_check">
+		insert into tb_check
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="record.checkId != null">
+				check_id,
+			</if>
+			<if test="record.bizId != null">
+				biz_id,
+			</if>
+			<if test="record.typeId != null">
+				type_id,
+			</if>
+			<if test="record.checkTime != null">
+				check_time,
+			</if>
+			<if test="record.checkMan != null">
+				check_man,
+			</if>
+			<if test="record.checkResult != null">
+				check_result,
+			</if>
+			<if test="record.checkComment != null">
+				check_comment,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="record.checkId != null">
+				#{record.checkId,jdbcType=INTEGER},
+			</if>
+			<if test="record.bizId != null">
+				#{record.bizId,jdbcType=INTEGER},
+			</if>
+			<if test="record.typeId != null">
+				#{record.typeId,jdbcType=INTEGER},
+			</if>
+			<if test="record.checkTime != null">
+				#{record.checkTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.checkMan != null">
+				#{record.checkMan,jdbcType=INTEGER},
+			</if>
+			<if test="record.checkResult != null">
+				#{record.checkResult,jdbcType=INTEGER},
+			</if>
+			<if test="record.checkComment != null">
+				#{record.checkComment,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		,employee_name
+		from tb_check c
+		INNER JOIN employee e ON
+		c.check_man=e.employee_id
+		where biz_id= #{bizId,jdbcType=INTEGER} and
+		type_id=2
+	</select>
+	<delete id="deleteByPrimaryKey"
+		parameterType="java.lang.Integer">
+		delete from tb_check
+		where check_id =
+		#{checkId,jdbcType=INTEGER}
+	</delete>
+	<insert id="insert"
+		parameterType="com.accp.project4.pojo.tb_check">
+		insert into tb_check (check_id, biz_id, type_id,
+		check_time, check_man, check_result,
+		check_comment)
+		values
+		(#{checkId,jdbcType=INTEGER}, #{bizId,jdbcType=INTEGER},
+		#{typeId,jdbcType=INTEGER},
+		#{checkTime,jdbcType=TIMESTAMP},
+		#{checkMan,jdbcType=INTEGER}, #{checkResult,jdbcType=INTEGER},
+		#{checkComment,jdbcType=VARCHAR})
+	</insert>
+
+	<update id="updateByPrimaryKeySelective"
+		parameterType="com.accp.project4.pojo.tb_check">
+		update tb_check
+		<set>
+			<if test="bizId != null">
+				biz_id = #{bizId,jdbcType=INTEGER},
+			</if>
+			<if test="typeId != null">
+				type_id = #{typeId,jdbcType=INTEGER},
+			</if>
+			<if test="checkTime != null">
+				check_time = #{checkTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="checkMan != null">
+				check_man = #{checkMan,jdbcType=INTEGER},
+			</if>
+			<if test="checkResult != null">
+				check_result = #{checkResult,jdbcType=INTEGER},
+			</if>
+			<if test="checkComment != null">
+				check_comment = #{checkComment,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where check_id = #{checkId,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey"
+		parameterType="com.accp.project4.pojo.tb_check">
+		update tb_check
+		set biz_id = #{bizId,jdbcType=INTEGER},
+		type_id = #{typeId,jdbcType=INTEGER},
+		check_time =
+		#{checkTime,jdbcType=TIMESTAMP},
+		check_man =
+		#{checkMan,jdbcType=INTEGER},
+		check_result =
+		#{checkResult,jdbcType=INTEGER},
+		check_comment =
+		#{checkComment,jdbcType=VARCHAR}
+		where check_id =
+		#{checkId,jdbcType=INTEGER}
+	</update>
+</mapper>

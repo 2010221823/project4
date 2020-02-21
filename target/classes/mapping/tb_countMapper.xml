@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.accp.project4.dao.tb_countMapper">
+	<resultMap id="BaseResultMap"
+		type="com.accp.project4.pojo.tb_count">
+		<id column="count_id" property="countId" jdbcType="INTEGER" />
+		<result column="money" property="money" jdbcType="REAL" />
+		<result column="year" property="year" jdbcType="INTEGER" />
+		<result column="month" property="month" jdbcType="INTEGER" />
+		<result column="department_id" property="departmentId"
+			jdbcType="INTEGER" />
+		<result column="employee_id" property="employeeId"
+			jdbcType="INTEGER" />
+		<result column="department_name" property="departmentName"
+			jdbcType="VARCHAR" />
+		<result column="employee_name" property="employeeName"
+			jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		count_id, money, year, month, department_id, employee_id
+	</sql>
+	<!-- 月度统计S -->
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		SELECT count_id,SUM(money) as
+		money,YEAR,MONTH,department_id,employee_id FROM
+		tb_count
+		<where>
+			<if test="departmentId!=null">
+				and department_id=#{departmentId}
+			</if>
+			<if test="year!=null">
+				and year=#{year}
+			</if>
+			<if test="startMonth!=null">
+				and MONTH<![CDATA[>= ]]>#{startMonth}
+			</if>
+			<if test="endMonth!=null">
+				and MONTH<![CDATA[<=]]>#{endMonth}
+			</if>
+		</where>
+		GROUP BY
+		MONTH,YEAR
+	</select>
+	<!-- 年度统计 -->
+	<select id="selectByYear" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		SELECT count_id,SUM(money) as
+		money,YEAR,MONTH,department_id,employee_id FROM
+		tb_count
+		<where>
+			<if test="departmentId!=null">
+				and department_id=#{departmentId}
+			</if>
+			<if test="startYear!=null">
+				and year<![CDATA[>= ]]>#{startYear}
+			</if>
+			<if test="endYear!=null">
+				and year<![CDATA[<=]]>#{endYear}
+			</if>
+		</where>
+		GROUP BY YEAR
+	</select>
+	<!--年·月统计详情 -->
+	<select id="queryByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		SELECT
+		count_id,SUM(money) as
+		money,YEAR,MONTH,c.department_id,department_name,c.employee_id,employee_name
+		FROM
+		tb_count c
+		INNER JOIN department d ON
+		c.department_id=d.department_id
+		INNER JOIN employee e ON
+		c.employee_id=e.employee_id
+		<where>
+			<if test="year!=null">
+				and year=#{year}
+			</if>
+			<if test="month!=null">
+				and month=#{month}
+			</if>
+			<if test="departmentId!=null">
+				and c.department_id=#{departmentId}
+				GROUP BY c.employee_id
+			</if>
+			<if test="positionId!=null">
+				GROUP BY c.department_id
+			</if>
+		</where>
+	</select>
+	<!--出纳打钱后，新增统计表 -->
+	<insert id="insertSelective"
+		parameterType="com.accp.project4.pojo.tb_count">
+		insert into tb_count
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="record.countId != null">
+				count_id,
+			</if>
+			<if test="record.money != null">
+				money,
+			</if>
+			<if test="record.year != null">
+				year,
+			</if>
+			<if test="record.month != null">
+				month,
+			</if>
+			<if test="record.departmentId != null">
+				department_id,
+			</if>
+			<if test="record.employeeId != null">
+				employee_id,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="record.countId != null">
+				#{record.countId,jdbcType=INTEGER},
+			</if>
+			<if test="record.money != null">
+				#{record.money,jdbcType=REAL},
+			</if>
+			<if test="record.year != null">
+				#{record.year,jdbcType=INTEGER},
+			</if>
+			<if test="record.month != null">
+				#{record.month,jdbcType=INTEGER},
+			</if>
+			<if test="record.departmentId != null">
+				#{record.departmentId,jdbcType=INTEGER},
+			</if>
+			<if test="record.employeeId != null">
+				#{record.employeeId,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+	<delete id="deleteByPrimaryKey"
+		parameterType="java.lang.Integer">
+		delete from tb_count
+		where count_id =
+		#{countId,jdbcType=INTEGER}
+	</delete>
+	<insert id="insert"
+		parameterType="com.accp.project4.pojo.tb_count">
+		insert into tb_count (count_id, money, year,
+		month,
+		department_id, employee_id
+		)
+		values (#{countId,jdbcType=INTEGER},
+		#{money,jdbcType=REAL},
+		#{year,jdbcType=INTEGER},
+		#{month,jdbcType=INTEGER}, #{departmentId,jdbcType=INTEGER},
+		#{employeeId,jdbcType=INTEGER}
+		)
+	</insert>
+
+	<update id="updateByPrimaryKeySelective"
+		parameterType="com.accp.project4.pojo.tb_count">
+		update tb_count
+		<set>
+			<if test="money != null">
+				money = #{money,jdbcType=REAL},
+			</if>
+			<if test="year != null">
+				year = #{year,jdbcType=INTEGER},
+			</if>
+			<if test="month != null">
+				month = #{month,jdbcType=INTEGER},
+			</if>
+			<if test="departmentId != null">
+				department_id = #{departmentId,jdbcType=INTEGER},
+			</if>
+			<if test="employeeId != null">
+				employee_id = #{employeeId,jdbcType=INTEGER},
+			</if>
+		</set>
+		where count_id = #{countId,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey"
+		parameterType="com.accp.project4.pojo.tb_count">
+		update tb_count
+		set money = #{money,jdbcType=REAL},
+		year =
+		#{year,jdbcType=INTEGER},
+		month = #{month,jdbcType=INTEGER},
+		department_id = #{departmentId,jdbcType=INTEGER},
+		employee_id =
+		#{employeeId,jdbcType=INTEGER}
+		where count_id =
+		#{countId,jdbcType=INTEGER}
+	</update>
+</mapper>

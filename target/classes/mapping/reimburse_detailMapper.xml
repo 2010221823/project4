@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.accp.project4.dao.reimburse_detailMapper">
+	<resultMap id="BaseResultMap"
+		type="com.accp.project4.pojo.reimburse_detail">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="main_id" property="mainId" jdbcType="INTEGER" />
+		<result column="subTotal" property="subtotal" jdbcType="REAL" />
+		<result column="des" property="des" jdbcType="VARCHAR" />
+		<result column="pictrue_name" property="pictrueName"
+			jdbcType="VARCHAR" />
+		<result column="pictrue_path" property="pictruePath"
+			jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		id, main_id, subTotal, des, pictrue_name, pictrue_path
+	</sql>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from reimburse_detail
+		where main_id = #{mainId,jdbcType=INTEGER}
+	</select>
+	<!--新增详表 -->
+	<insert id="insertSelective"
+		parameterType="com.accp.project4.pojo.reimburse_detail">
+		<if test="record != null">
+			insert into reimburse_detail
+			<trim prefix="(" suffix=")" suffixOverrides=",">
+				<if test="record.id != null">
+					id,
+				</if>
+				<if test="record.mainId != null">
+					main_id,
+				</if>
+				<if test="record.subtotal != null">
+					subTotal,
+				</if>
+				<if test="record.des != null">
+					des,
+				</if>
+				<if test="record.pictrueName != null">
+					pictrue_name,
+				</if>
+				<if test="record.pictruePath != null">
+					pictrue_path,
+				</if>
+			</trim>
+			<trim prefix="values (" suffix=")" suffixOverrides=",">
+				<if test="record.id != null">
+					#{record.id,jdbcType=INTEGER},
+				</if>
+				<if test="record.mainId != null">
+					#{record.mainId,jdbcType=INTEGER},
+				</if>
+				<if test="record.subtotal != null">
+					#{record.subtotal,jdbcType=REAL},
+				</if>
+				<if test="record.des != null">
+					#{record.des,jdbcType=VARCHAR},
+				</if>
+				<if test="record.pictrueName != null">
+					#{record.pictrueName,jdbcType=VARCHAR},
+				</if>
+				<if test="record.pictruePath != null">
+					#{record.pictruePath,jdbcType=VARCHAR},
+				</if>
+			</trim>
+		</if>
+	</insert>
+	<delete id="deleteByPrimaryKey"
+		parameterType="java.lang.Integer">
+		delete from reimburse_detail
+		where main_id=
+		#{id,jdbcType=INTEGER}
+	</delete>
+	<insert id="insert"
+		parameterType="com.accp.project4.pojo.reimburse_detail">
+		insert into reimburse_detail (id, main_id, subTotal,
+		desc, pictrue_name, pictrue_path
+		)
+		values (#{id,jdbcType=INTEGER},
+		#{mainId,jdbcType=INTEGER},
+		#{subtotal,jdbcType=REAL},
+		#{desc,jdbcType=VARCHAR}, #{pictrueName,jdbcType=VARCHAR},
+		#{pictruePath,jdbcType=VARCHAR}
+		)
+	</insert>
+
+	<update id="updateByPrimaryKeySelective"
+		parameterType="com.accp.project4.pojo.reimburse_detail">
+		update reimburse_detail
+		<set>
+			<if test="mainId != null">
+				main_id = #{mainId,jdbcType=INTEGER},
+			</if>
+			<if test="subtotal != null">
+				subTotal = #{subtotal,jdbcType=REAL},
+			</if>
+			<if test="desc != null">
+				desc = #{desc,jdbcType=VARCHAR},
+			</if>
+			<if test="pictrueName != null">
+				pictrue_name = #{pictrueName,jdbcType=VARCHAR},
+			</if>
+			<if test="pictruePath != null">
+				pictrue_path = #{pictruePath,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey"
+		parameterType="com.accp.project4.pojo.reimburse_detail">
+		update reimburse_detail
+		set main_id =
+		#{mainId,jdbcType=INTEGER},
+		subTotal = #{subtotal,jdbcType=REAL},
+		desc =
+		#{desc,jdbcType=VARCHAR},
+		pictrue_name =
+		#{pictrueName,jdbcType=VARCHAR},
+		pictrue_path =
+		#{pictruePath,jdbcType=VARCHAR}
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+</mapper>

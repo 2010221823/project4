@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.accp.project4.dao.tb_reimburseMapper">
+	<resultMap id="BaseResultMap"
+		type="com.accp.project4.pojo.tb_reimburse">
+		<id column="reimburse_id" property="reimburseId" jdbcType="INTEGER" />
+		<result column="type_id" property="typeId" jdbcType="INTEGER" />
+		<result column="create_man" property="createMan"
+			jdbcType="INTEGER" />
+		<result column="create_time" property="createTime"
+			jdbcType="TIMESTAMP" />
+		<result column="department_id" property="departmentId"
+			jdbcType="INTEGER" />
+		<result column="next_deal_man" property="nextDealMan"
+			jdbcType="INTEGER" />
+		<result column="event" property="event" jdbcType="VARCHAR" />
+		<result column="total_count" property="totalCount"
+			jdbcType="REAL" />
+		<result column="status_id" property="statusId"
+			jdbcType="INTEGER" />
+	</resultMap>
+
+	<resultMap id="BaseResultMap1"
+		type="com.accp.project4.vo.ReimburseVo">
+		<id column="reimburse_id" property="reimburseId" jdbcType="INTEGER" />
+		<result column="employee_id" property="employeeId"
+			jdbcType="INTEGER" />
+		<result column="employee_name" property="employeeName"
+			jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime"
+			jdbcType="TIMESTAMP" />
+		<result column="next_deal_man" property="nextDealMan"
+			jdbcType="INTEGER" />
+		<result column="next_deal_mans" property="nextDealMans"
+			jdbcType="VARCHAR" />
+		<result column="total_count" property="totalCount"
+			jdbcType="REAL" />
+		<result column="status_id" property="statusId"
+			jdbcType="VARCHAR" />
+		<result column="status_name" property="statusName"
+			jdbcType="VARCHAR" />
+		<result column="event" property="event" jdbcType="VARCHAR" />
+		<result column="department_id" property="departmentId"
+			jdbcType="INTEGER" />
+		<result column="department_name" property="departmentName"
+			jdbcType="VARCHAR" />
+		<result column="position_name" property="positionName"
+			jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		reimburse_id, type_id, create_man, create_time,
+		department_id, next_deal_man,
+		event,
+		total_count, status_id
+	</sql>
+	<!-- 根据不同职位查询报销 -->
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap1"
+		parameterType="java.lang.Integer">
+		SELECT
+		r.reimburse_id,create_time,employee_name,total_count,next_deal_man,r.status_id,status_name,rr.ename
+		AS next_deal_mans FROM tb_reimburse r
+		INNER JOIN tb_status s ON
+		s.status_id=r.status_id
+		INNER JOIN employee e ON
+		r.create_man=e.employee_id
+		INNER JOIN( SELECT employee_name AS
+		ename,reimburse_id FROM tb_reimburse r
+		left JOIN employee e ON
+		e.employee_id=r.next_deal_man) AS rr ON
+		rr.reimburse_id=r.reimburse_id
+		<where>
+			<if test="createMan!=null">
+				and r.create_man=#{createMan}
+			</if>
+			<if test="positionId!=null">
+				and e.position_id=#{positionId} and r.status_id &gt;1
+			</if>
+			<if test="count!=null">
+				or total_count&gt;5000
+			</if>
+			<if test="departmentId!=null">
+				and e.department_id=#{departmentId}
+			</if>
+			<if test="type!=null">
+				and e.employee_id!=#{type} and r.status_id &gt;1
+			</if>
+			<if test="status!=null">
+				and r.status_id=#{status}
+			</if>
+			<if test="startTime!=null">
+				and create_time<![CDATA[>= ]]>#{startTime}
+			</if>
+			<if test="endTime!=null">
+				and create_time<![CDATA[<=]]>#{endTime}
+			</if>
+		</where>
+		ORDER BY r.reimburse_id DESC
+	</select>
+	<!--查询具体报销 -->
+	<select id="queryByPrimaryKey" resultMap="BaseResultMap1"
+		parameterType="java.lang.Integer">
+		SELECT
+		r.reimburse_id,create_time,e.employee_id,employee_name,total_count,next_deal_man,r.status_id,status_name,event,position_name,d.department_id,department_name,rr.ename
+		AS next_deal_mans FROM tb_reimburse r
+		INNER JOIN tb_status s ON
+		s.status_id=r.status_id
+		INNER JOIN employee e ON
+		r.create_man=e.employee_id
+		INNER JOIN POSITION p ON
+		e.position_id=p.position_id
+		INNER JOIN department d ON
+		e.department_id=d.department_id
+		INNER JOIN(
+		SELECT employee_name AS
+		ename,reimburse_id FROM tb_reimburse r
+		left
+		JOIN employee e ON
+		e.employee_id=r.next_deal_man) AS rr ON
+		rr.reimburse_id=r.reimburse_id
+		WHERE r.reimburse_id=#{reimburseId}
+	</select>
+	<!-- 报销主详新增 -->
+	<insert id="insertSelective"
+		parameterType="com.accp.project4.pojo.tb_reimburse">
+		<selectKey keyProperty="reimburseId" order="AFTER"
+			resultType="java.lang.Integer">
+			SELECT LAST_INSERT_ID();
+		</selectKey>
+		insert into tb_reimburse
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="reimburseId != null">
+				reimburse_id,
+			</if>
+			<if test="typeId != null">
+				type_id,
+			</if>
+			<if test="createMan != null">
+				create_man,
+			</if>
+			<if test="createTime != null">
+				create_time,
+			</if>
+			<if test="departmentId != null">
+				department_id,
+			</if>
+			<if test="nextDealMan != null">
+				next_deal_man,
+			</if>
+			<if test="event != null">
+				event,
+			</if>
+			<if test="totalCount != null">
+				total_count,
+			</if>
+			<if test="statusId != null">
+				status_id,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="reimburseId != null">
+				#{reimburseId,jdbcType=INTEGER},
+			</if>
+			<if test="typeId != null">
+				#{typeId,jdbcType=INTEGER},
+			</if>
+			<if test="createMan != null">
+				#{createMan,jdbcType=INTEGER},
+			</if>
+			<if test="createTime != null">
+				#{createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="departmentId != null">
+				#{departmentId,jdbcType=INTEGER},
+			</if>
+			<if test="nextDealMan != null">
+				#{nextDealMan,jdbcType=INTEGER},
+			</if>
+			<if test="event != null">
+				#{event,jdbcType=VARCHAR},
+			</if>
+			<if test="totalCount != null">
+				#{totalCount,jdbcType=REAL},
+			</if>
+			<if test="statusId != null">
+				#{statusId,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+	<!-- 报销修改 -->
+	<update id="updateByPrimaryKeySelective"
+		parameterType="com.accp.project4.pojo.tb_reimburse">
+		update tb_reimburse
+		<set>
+			<if test="record.typeId != null">
+				type_id = #{record.typeId,jdbcType=INTEGER},
+			</if>
+			<if test="record.createMan != null">
+				create_man = #{record.createMan,jdbcType=INTEGER},
+			</if>
+			<if test="record.createTime != null">
+				create_time = #{record.createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.departmentId != null">
+				department_id = #{record.departmentId,jdbcType=INTEGER},
+			</if>
+			<if test="record.nextDealMan != null">
+				next_deal_man = #{record.nextDealMan,jdbcType=INTEGER},
+			</if>
+			<if test="record.event != null">
+				event = #{record.event,jdbcType=VARCHAR},
+			</if>
+			<if test="record.totalCount != null">
+				total_count = #{record.totalCount,jdbcType=REAL},
+			</if>
+			<if test="record.statusId != null">
+				status_id = #{record.statusId,jdbcType=INTEGER},
+			</if>
+		</set>
+		where reimburse_id = #{record.reimburseId,jdbcType=INTEGER};
+	</update>
+	<!--根据报销id主详删除 -->
+	<delete id="deleteByPrimaryKey"
+		parameterType="java.lang.Integer">
+		delete from tb_reimburse
+		where reimburse_id =
+		#{reimburseId,jdbcType=INTEGER};
+		delete from reimburse_detail
+		where
+		main_id = #{reimburseId,jdbcType=INTEGER}
+	</delete>
+</mapper>

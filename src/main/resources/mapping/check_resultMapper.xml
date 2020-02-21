@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.accp.project4.dao.check_resultMapper" >
+  <resultMap id="BaseResultMap" type="com.accp.project4.pojo.check_result" >
+    <id column="result_id" property="resultId" jdbcType="INTEGER" />
+    <result column="result_name" property="resultName" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    result_id, result_name
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from check_result
+    where result_id = #{resultId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from check_result
+    where result_id = #{resultId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.accp.project4.pojo.check_result" >
+    insert into check_result (result_id, result_name)
+    values (#{resultId,jdbcType=INTEGER}, #{resultName,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.accp.project4.pojo.check_result" >
+    insert into check_result
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="resultId != null" >
+        result_id,
+      </if>
+      <if test="resultName != null" >
+        result_name,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="resultId != null" >
+        #{resultId,jdbcType=INTEGER},
+      </if>
+      <if test="resultName != null" >
+        #{resultName,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.accp.project4.pojo.check_result" >
+    update check_result
+    <set >
+      <if test="resultName != null" >
+        result_name = #{resultName,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where result_id = #{resultId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.accp.project4.pojo.check_result" >
+    update check_result
+    set result_name = #{resultName,jdbcType=VARCHAR}
+    where result_id = #{resultId,jdbcType=INTEGER}
+  </update>
+</mapper>

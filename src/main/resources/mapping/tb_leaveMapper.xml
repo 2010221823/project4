@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.accp.project4.dao.tb_leaveMapper">
+	<resultMap id="BaseResultMap"
+		type="com.accp.project4.pojo.tb_leave">
+		<id column="leave_id" property="leaveId" jdbcType="INTEGER" />
+		<result column="type_id" property="typeId" jdbcType="INTEGER" />
+		<result column="create_man" property="createMan"
+			jdbcType="INTEGER" />
+		<result column="department_id" property="departmentId"
+			jdbcType="INTEGER" />
+		<result column="create_time" property="createTime"
+			jdbcType="TIMESTAMP" />
+		<result column="start_time" property="startTime"
+			jdbcType="TIMESTAMP" />
+		<result column="end_time" property="endTime"
+			jdbcType="TIMESTAMP" />
+		<result column="next_deal_man" property="nextDealMan"
+			jdbcType="INTEGER" />
+		<result column="event" property="event" jdbcType="VARCHAR" />
+		<result column="total_count" property="totalCount"
+			jdbcType="INTEGER" />
+		<result column="status_id" property="statusId"
+			jdbcType="INTEGER" />
+	</resultMap>
+
+	<resultMap id="BaseResultMap1"
+		type="com.accp.project4.vo.LeaveVo">
+		<id column="leaveid" property="leaveId" jdbcType="INTEGER" />
+		<result column="employeename" property="employeeName"
+			jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime"
+			jdbcType="TIMESTAMP" />
+		<result column="check_time" property="checkTime"
+			jdbcType="TIMESTAMP" />
+		<result column="check_comment" property="checkComment"
+			jdbcType="VARCHAR" />
+		<result column="nextdeal_man" property="nextDealMan"
+			jdbcType="VARCHAR" />
+		<result column="nextdeal_ma" property="nextDealMa"
+			jdbcType="VARCHAR" />
+		<result column="total_count" property="totalCount"
+			jdbcType="INTEGER" />
+		<result column="status_name" property="statusName"
+			jdbcType="VARCHAR" />
+	</resultMap>
+
+
+	<resultMap id="BaseResultMap2"
+		type="com.accp.project4.vo.LeaveVo">
+		<id column="leaveid" property="leaveId" jdbcType="INTEGER" />
+		<result column="employeename" property="employeeName"
+			jdbcType="VARCHAR" />
+		<result column="dname" property="departmentName"
+			jdbcType="VARCHAR" />
+		<result column="start_time" property="startTime"
+			jdbcType="TIMESTAMP" />
+		<result column="end_time" property="endTime"
+			jdbcType="TIMESTAMP" />
+		<result column="total_count" property="totalCount"
+			jdbcType="INTEGER" />
+		<result column="event" property="event" jdbcType="VARCHAR" />
+		<result column="status_name" property="statusName"
+			jdbcType="VARCHAR" />
+		<collection property="list"
+			ofType="com.accp.project4.vo.CheckVo">
+			<result column="check_time" property="checkTime" />
+			<result column="check_comment" property="checkComment" />
+			<result column="ename" property="checkMan" />
+			<result column="resultname" property="checkResult" />
+		</collection>
+	</resultMap>
+	<sql id="Base_Column_List">
+		leave_id, type_id, create_man, department_id, create_time,
+		start_time,
+		end_time,
+		next_deal_man, event, total_count, status_id
+	</sql>
+	<!--根据不同的职位查看请假 -->
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap1">
+		SELECT l.leave_id AS leaveid,e.employee_name AS
+		employeename,l.next_deal_man AS
+		nextdeal_ma,total_count,create_time,status_name,c.TIME AS
+		check_time,c.check_comment AS check_comment,ll.employee_name
+		AS
+		nextdeal_man FROM tb_leave l INNER JOIN employee e ON
+		e.employee_id=l.create_man
+		LEFT JOIN (SELECT`employee_name`,`leave_id`
+		FROM employee em INNER JOIN
+		`tb_leave` le ON
+		le.`next_deal_man`=em.`employee_id`) AS ll ON
+		ll.leave_id=l.`leave_id`
+		INNER JOIN `tb_status` s ON s.`status_id`=l.`status_id`
+		LEFT JOIN
+		(SELECT MAX(check_time) AS TIME,check_comment,biz_id FROM
+		tb_check
+		GROUP BY biz_id)AS c
+		ON l.leave_id=c.biz_id
+		<where>
+			<if test="employeeId!=null">
+				and e.employee_id=#{employeeId}
+			</if>
+			<if test="departmentId!=null">
+				and l.department_id=#{departmentId}
+			</if>
+			<if test="positionId!=null">
+				and 2 &lt; e.position_id
+			</if>
+			<if test="startTime!=null">
+				and start_time<![CDATA[>= ]]>#{startTime}
+			</if>
+			<if test="endTime!=null">
+				and end_time<![CDATA[<=]]>#{endTime}
+			</if>
+		</where>
+		ORDER BY l.leave_id DESC
+	</select>
+	<!--查看请假详情 -->
+	<select id="queryByPrimaryKey" resultMap="BaseResultMap2">
+		SELECT
+		l.leave_id as
+		leaveid,e.employee_name as
+		employeename,total_count,start_time,end_time,EVENT,status_name,ss.check_time
+		as check_time,de.department_name
+		AS dname,ss.check_comment as
+		check_comment,ss.emname AS ename,ss.rname AS
+		resultname
+		FROM
+		tb_leave l
+		INNER JOIN employee e ON
+		e.employee_id=l.create_man
+		INNER
+		JOIN (SELECT
+		department_name,employee_id FROM employee e INNER JOIN
+		department d ON
+		e.department_id=d.department_id)AS de ON
+		de.employee_id=e.employee_id
+		INNER JOIN tb_status s ON
+		s.status_id=l.status_id
+		LEFT
+		JOIN (SELECT
+		biz_id,check_time,check_comment,em.employee_name AS
+		emname,r.result_name AS rname
+		FROM tb_check ch INNER JOIN employee em
+		ON ch.check_man=em.employee_id
+		INNER JOIN check_result r ON
+		r.result_id= ch.check_result WHERE type_id=1) AS ss ON
+		ss.biz_id=l.leave_id
+		where
+		l.leave_id=#{leaveId}
+	</select>
+	<!-- 新增请求表 -->
+	<insert id="insertSelective"
+		parameterType="com.accp.project4.pojo.tb_leave">
+		insert into tb_leave
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="record.leaveId != null">
+				leave_id,
+			</if>
+			<if test="record.typeId != null">
+				type_id,
+			</if>
+			<if test="record.createMan != null">
+				create_man,
+			</if>
+			<if test="record.departmentId != null">
+				department_id,
+			</if>
+			<if test="record.createTime != null">
+				create_time,
+			</if>
+			<if test="record.startTime != null">
+				start_time,
+			</if>
+			<if test="record.endTime != null">
+				end_time,
+			</if>
+			<if test="record.nextDealMan != null">
+				next_deal_man,
+			</if>
+			<if test="record.event != null">
+				event,
+			</if>
+			<if test="record.totalCount != null">
+				total_count,
+			</if>
+			<if test="record.statusId != null">
+				status_id,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="record.leaveId != null">
+				#{record.leaveId,jdbcType=INTEGER},
+			</if>
+			<if test="record.typeId != null">
+				#{record.typeId,jdbcType=INTEGER},
+			</if>
+			<if test="record.createMan != null">
+				#{record.createMan,jdbcType=INTEGER},
+			</if>
+			<if test="record.departmentId != null">
+				#{record.departmentId,jdbcType=INTEGER},
+			</if>
+			<if test="record.createTime != null">
+				#{record.createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.startTime != null">
+				#{record.startTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.endTime != null">
+				#{record.endTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.nextDealMan != null">
+				#{record.nextDealMan,jdbcType=INTEGER},
+			</if>
+			<if test="record.event != null">
+				#{record.event,jdbcType=VARCHAR},
+			</if>
+			<if test="record.totalCount != null">
+				#{record.totalCount,jdbcType=INTEGER},
+			</if>
+			<if test="record.statusId != null">
+				#{record.statusId,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+	<!--修改请假状态 -->
+	<update id="updateByPrimaryKeySelective"
+		parameterType="com.accp.project4.pojo.tb_leave">
+		update tb_leave
+		<set>
+			<if test="record.typeId != null">
+				type_id = #{record.typeId,jdbcType=INTEGER},
+			</if>
+			<if test="record.createMan != null">
+				create_man = #{record.createMan,jdbcType=INTEGER},
+			</if>
+			<if test="record.departmentId != null">
+				department_id = #{record.departmentId,jdbcType=INTEGER},
+			</if>
+			<if test="record.createTime != null">
+				create_time = #{record.createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.startTime != null">
+				start_time = #{record.startTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.endTime != null">
+				end_time = #{record.endTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.nextDealMan != null">
+				next_deal_man = #{record.nextDealMan,jdbcType=INTEGER},
+			</if>
+			<if test="record.event != null">
+				event = #{record.event,jdbcType=VARCHAR},
+			</if>
+			<if test="record.totalCount != null">
+				total_count = #{record.totalCount,jdbcType=INTEGER},
+			</if>
+			<if test="record.statusId != null">
+				status_id = #{record.statusId,jdbcType=INTEGER},
+			</if>
+		</set>
+		where leave_id = #{record.leaveId,jdbcType=INTEGER}
+	</update>
+	<delete id="deleteByPrimaryKey"
+		parameterType="java.lang.Integer">
+		delete from tb_leave
+		where leave_id =
+		#{leaveId,jdbcType=INTEGER}
+	</delete>
+	<insert id="insert"
+		parameterType="com.accp.project4.pojo.tb_leave">
+		insert into tb_leave (leave_id, type_id, create_man,
+		department_id, create_time, start_time,
+		end_time, next_deal_man, event,
+		total_count, status_id)
+		values (#{leaveId,jdbcType=INTEGER},
+		#{typeId,jdbcType=INTEGER},
+		#{createMan,jdbcType=INTEGER},
+		#{departmentId,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP},
+		#{startTime,jdbcType=TIMESTAMP},
+		#{endTime,jdbcType=TIMESTAMP},
+		#{nextDealMan,jdbcType=INTEGER},
+		#{event,jdbcType=VARCHAR},
+		#{totalCount,jdbcType=INTEGER}, #{statusId,jdbcType=INTEGER})
+	</insert>
+
+	<update id="updateByPrimaryKey"
+		parameterType="com.accp.project4.pojo.tb_leave">
+		update tb_leave
+		set type_id = #{typeId,jdbcType=INTEGER},
+		create_man = #{createMan,jdbcType=INTEGER},
+		department_id =
+		#{departmentId,jdbcType=INTEGER},
+		create_time =
+		#{createTime,jdbcType=TIMESTAMP},
+		start_time =
+		#{startTime,jdbcType=TIMESTAMP},
+		end_time =
+		#{endTime,jdbcType=TIMESTAMP},
+		next_deal_man =
+		#{nextDealMan,jdbcType=INTEGER},
+		event = #{event,jdbcType=VARCHAR},
+		total_count = #{totalCount,jdbcType=INTEGER},
+		status_id =
+		#{statusId,jdbcType=INTEGER}
+		where leave_id =
+		#{leaveId,jdbcType=INTEGER}
+	</update>
+</mapper>
